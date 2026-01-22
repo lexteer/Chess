@@ -22,8 +22,7 @@ public class GameScreen implements Screen {
         // camera + viewport setup
         camera = new OrthographicCamera();
         viewPort = new ScreenViewport(camera);
-        viewPort.apply();
-        camera.position.set(400, 400, 0);
+        viewPort.apply(true);
         camera.update();
 
         // instances
@@ -31,12 +30,14 @@ public class GameScreen implements Screen {
     }
 
     private void update(float delta) {
-        camera.update();
+
     }
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         viewPort.apply();
         update(delta);
 
@@ -69,13 +70,5 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         board.dispose();
-    }
-
-    public int getScreenWidth() {
-        return Gdx.graphics.getWidth();
-    }
-
-    public int getScreenHeight() {
-        return Gdx.graphics.getHeight();
     }
 }

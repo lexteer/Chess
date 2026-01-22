@@ -5,20 +5,18 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class Board {
-    private float screenWidth;
-    private float screenHeight;
 
-    private int squareSize;
     public static int SQUARE_COUNT = 8; // 8x8 board
-    private float boardSize = 0.75f; // percentage of screen (70% of screen)
+    private final float boardSizePercent = 0.75f;
 
-    private ShapeRenderer shapeRenderer;
-    OrthographicCamera camera;
+    private final Color light = Color.valueOf("F0D9B5");
+    private final Color dark = Color.valueOf("B58863");
+
+    private final ShapeRenderer shapeRenderer;
+    private final OrthographicCamera camera;
 
     public Board(OrthographicCamera camera) {
         this.camera = camera;
-        this.screenHeight = camera.viewportHeight;
-        this.screenWidth = camera.viewportWidth;
 
         shapeRenderer = new ShapeRenderer();
     }
@@ -28,51 +26,57 @@ public class Board {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
+        float boardSize = getBoardSize();
+        float squareSize = getSquareSize();
+        float boardX = getBoardX();
+        float boardY = getBoardY();
+
         // draw the light square
-        shapeRenderer.setColor(Color.WHITE);
-        shapeRenderer.rect(getBoardX(), getBoardY(), getBoardSize(), getBoardSize());
+        shapeRenderer.setColor(light);
+
+        shapeRenderer.rect(boardX, boardY, boardSize, boardSize);
 
         // draw the dark squares
-        drawDarkSquares();
+        drawDarkSquares(squareSize, boardX, boardY);
 
         shapeRenderer.end();
     }
 
     public float getBoardSize() {
-        float width = camera.viewportWidth * boardSize;
-        float height = camera.viewportHeight * boardSize;
+        float width = camera.viewportWidth * boardSizePercent;
+        float height = camera.viewportHeight * boardSizePercent;
 
         return Math.min(width, height);
     }
 
-    public int getBoardX() {
+    public float getBoardX() {
         float width = camera.viewportWidth;
-        return (int) ((width/2) - (getBoardSize()/2));
+        return (width/2) - (getBoardSize()/2);
     }
 
-    public int getBoardY() {
+    public float getBoardY() {
         float height = camera.viewportHeight;
-        return (int) ((height/2) - (getBoardSize()/2));
+        return (height/2) - (getBoardSize()/2);
     }
 
     public float getSquareSize() {
         return getBoardSize() / SQUARE_COUNT;
     }
 
-    private void drawDarkSquares() {
-        shapeRenderer.setColor(Color.BLACK);
+    private void drawDarkSquares(float squareSize, float boardX, float boardY) {
+        shapeRenderer.setColor(dark);
 
         for(int row = 0; row < SQUARE_COUNT; row++) {
             for (int col = 0; col < SQUARE_COUNT; col += 2) {
-                float x = getBoardX() + col * getSquareSize();
-                float y = getBoardY() + row * getSquareSize();
+                float x = boardX + col * squareSize;
+                float y = boardY + row * squareSize;
 
                 // checker board pattern
                 if(row % 2 != 0) {
-                    x += getSquareSize();
+                    x += squareSize;
                 }
 
-                shapeRenderer.rect(x, y, getSquareSize(), getSquareSize());
+                shapeRenderer.rect(x, y, squareSize, squareSize);
             }
         }
     }
