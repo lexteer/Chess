@@ -7,4 +7,10 @@ public class Main extends Game {
     public void create() {
         setScreen(new GameScreen());
     }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+    }
+
 }
