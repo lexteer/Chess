@@ -1,45 +1,84 @@
 package lexteer.chess;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
-/** First screen of the application. Displayed after the application is created. */
+import java.awt.*;
+
 public class GameScreen implements Screen {
+
+    private OrthographicCamera camera;
+    private Viewport viewPort;
+    private Board board;
+
+    public GameScreen() {
+
+    }
+
     @Override
     public void show() {
-        // Prepare your screen here.
+        // camera + viewport setup
+        camera = new OrthographicCamera();
+        viewPort = new ScreenViewport(camera);
+        viewPort.apply();
+        camera.position.set(400, 400, 0);
+        camera.update();
+
+        // instances
+        board = new Board(camera);
+    }
+
+    private void update(float delta) {
+        camera.update();
     }
 
     @Override
     public void render(float delta) {
-        // Draw your screen here. "delta" is the time since last render in seconds.
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        viewPort.apply();
+        update(delta);
+
+
+        board.draw();
     }
 
     @Override
     public void resize(int width, int height) {
-        // If the window is minimized on a desktop (LWJGL3) platform, width and height are 0, which causes problems.
-        // In that case, we don't resize anything, and wait for the window to be a normal size before updating.
         if(width <= 0 || height <= 0) return;
 
-        // Resize your screen here. The parameters represent the new window size.
+        viewPort.update(width, height, true);
     }
 
     @Override
     public void pause() {
-        // Invoked when your application is paused.
+
     }
 
     @Override
     public void resume() {
-        // Invoked when your application is resumed after pause.
+
     }
 
     @Override
     public void hide() {
-        // This method is called when another screen replaces this one.
+
     }
 
     @Override
     public void dispose() {
-        // Destroy screen's assets here.
+        board.dispose();
+    }
+
+    public int getScreenWidth() {
+        return Gdx.graphics.getWidth();
+    }
+
+    public int getScreenHeight() {
+        return Gdx.graphics.getHeight();
     }
 }
