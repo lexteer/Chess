@@ -1,10 +1,12 @@
-package lexteer.chess;
+package lexteer.chess.board;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import lexteer.chess.main.GameScreen;
+import lexteer.chess.pieces.Piece;
 
-public class Board {
+public class BoardUi {
 
     public static int SQUARE_COUNT = 8; // 8x8 board
     private final float boardSizePercent = 0.75f;
@@ -14,9 +16,11 @@ public class Board {
 
     private final ShapeRenderer shapeRenderer;
     private final OrthographicCamera camera;
+    private final GameScreen gameScreen;
 
-    public Board(OrthographicCamera camera) {
+    public BoardUi(OrthographicCamera camera, GameScreen gamescreen) {
         this.camera = camera;
+        this.gameScreen = gamescreen;
 
         shapeRenderer = new ShapeRenderer();
     }
@@ -39,6 +43,8 @@ public class Board {
         // draw the dark squares
         drawDarkSquares(squareSize, boardX, boardY);
 
+        highlightSelectedSquare();
+
         shapeRenderer.end();
     }
 
@@ -57,6 +63,15 @@ public class Board {
     public float getBoardY() {
         float height = camera.viewportHeight;
         return (height/2) - (getBoardSize()/2);
+    }
+
+    public float getSquareX(int index) {
+        int file = index % 8;
+        return getBoardX() + getSquareSize() * file;
+    }
+
+    public float getSquareY(int index) {
+        return getBoardY() + (getSquareSize() * (index / 8)); // dont cast to float
     }
 
     public float getSquareSize() {
@@ -79,6 +94,19 @@ public class Board {
                 shapeRenderer.rect(x, y, squareSize, squareSize);
             }
         }
+    }
+
+    private void highlightSelectedSquare() {
+        Piece selectedPiece = gameScreen.getSelectedPiece();
+        if(selectedPiece == null) return;
+
+        Board board = gameScreen.getBoard();
+
+        float x = getSquareX(board.index(selectedPiece));
+        float y = getSquareY(board.index(selectedPiece));
+
+        shapeRenderer.setColor(Color.BLUE);
+        shapeRenderer.rect(x, y, getSquareSize(), getSquareSize());
     }
 
     public void dispose() {

@@ -23,6 +23,12 @@ allprojects {
       testOutputDir = file('build/classes/java/test')
     }
   }
+
+  repositories {
+    mavenCentral()
+    google()
+    maven { url "https://jitpack.io" }
+  }
 }
 
 configure(subprojects) {
