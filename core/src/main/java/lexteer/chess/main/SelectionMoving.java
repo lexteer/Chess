@@ -16,8 +16,9 @@ public class SelectionMoving {
 
     private Piece selectedPiece = null;
 
+    // selected piece legal moves buffer
     int[] moveBuf = new int[32];
-    int moveCount = 0;
+    int moveCount = 0; // for legal moves
 
     // helpers
     private boolean reselected = false;
@@ -104,7 +105,7 @@ public class SelectionMoving {
             return;
         }
 
-        if(mousePressed && !mouseDragging) {
+        if(mousePressed && !pickUpPiece) {
             if(mouseIndex == board.index(selectedPiece)) return;
 
             if(mousePiece == null || mousePiece.getColor() != selectedPiece.getColor()) {

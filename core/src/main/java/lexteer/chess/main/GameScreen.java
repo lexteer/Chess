@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import lexteer.chess.board.Board;
+import lexteer.chess.board.BoardHighlighting;
 import lexteer.chess.board.BoardUi;
 import lexteer.chess.board.LoadTestPosition;
 import lexteer.chess.main.enums.PieceColor;
@@ -24,6 +25,7 @@ public class GameScreen implements Screen {
     private Viewport viewPort;
     private BoardUi boardUi;
     private Board board;
+    private BoardHighlighting boardHighlighting;
     private Mouse mouse;
     private SelectionMoving selectionMoving;
     private GameState state;
@@ -50,6 +52,7 @@ public class GameScreen implements Screen {
         mouse = new Mouse(camera, viewPort, boardUi);
         state = new GameState(board);
         selectionMoving = new SelectionMoving(mouse, board, boardUi, this, state);
+        boardHighlighting = new BoardHighlighting(this, boardUi, camera, mouse);
 
         new LoadTestPosition(board);
     }
@@ -82,11 +85,14 @@ public class GameScreen implements Screen {
 
 
         boardUi.draw();
+        boardHighlighting.draw();
 
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
             board.drawPieces(batch);
         batch.end();
+
+
     }
 
     @Override
@@ -115,6 +121,7 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         boardUi.dispose();
+        boardHighlighting.dispose();
     }
 
     public Piece getSelectedPiece() {

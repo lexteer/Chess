@@ -46,7 +46,7 @@ public class BoardUi {
 
         highlightSelectedSquare();
 
-        drawLegalMoves();
+        //drawLegalMoves();
 
         shapeRenderer.end();
     }
@@ -108,31 +108,8 @@ public class BoardUi {
         float x = getSquareX(board.index(selectedPiece));
         float y = getSquareY(board.index(selectedPiece));
 
-        shapeRenderer.setColor(Color.BLUE);
+        shapeRenderer.setColor(new Color(0.98f, 0.78f, 0.22f, 0.85f));
         shapeRenderer.rect(x, y, getSquareSize(), getSquareSize());
-    }
-
-    private void drawLegalMoves() {
-        Piece selectedPiece = gameScreen.getSelectedPiece();
-        if(selectedPiece == null) return;
-
-        int moveCount = gameScreen.getSelectionMoving().getMoveCount();
-        int[] moveBuf = gameScreen.getSelectionMoving().getMoveBuf();
-
-        for (int i = 0; i < moveCount; i++) {
-            int to = Move.to(moveBuf[i]);
-
-            Board board = gameScreen.getBoard();
-
-            float x = getSquareX(to);
-            float y = getSquareY(to);
-
-            x += (getSquareSize()/2) / 2;
-            y += (getSquareSize()/2) / 2;
-
-            shapeRenderer.setColor(Color.GREEN);
-            shapeRenderer.rect(x, y, getSquareSize()/2, getSquareSize()/2);
-        }
     }
 
     public void dispose() {
