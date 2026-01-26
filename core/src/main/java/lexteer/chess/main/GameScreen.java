@@ -11,10 +11,13 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import lexteer.chess.board.Board;
 import lexteer.chess.board.BoardUi;
 import lexteer.chess.board.LoadTestPosition;
+import lexteer.chess.main.enums.PieceColor;
 import lexteer.chess.pieces.Piece;
-import lexteer.chess.pieces.PieceSelection;
 
 public class GameScreen implements Screen {
+
+    private boolean engineEnabled = false;
+    private final PieceColor playerColor = PieceColor.WHITE;
 
     private Batch batch;
     private OrthographicCamera camera;
@@ -22,11 +25,12 @@ public class GameScreen implements Screen {
     private BoardUi boardUi;
     private Board board;
     private Mouse mouse;
+    private SelectionMoving selectionMoving;
 
-    private PieceSelection pieceSelection;
+    private PieceColor currentPlaying;
 
     public GameScreen() {
-
+        currentPlaying = PieceColor.WHITE; // white starts
     }
 
     @Override
@@ -43,13 +47,26 @@ public class GameScreen implements Screen {
         boardUi = new BoardUi(camera, this);
         board = new Board(boardUi, this);
         mouse = new Mouse(camera, viewPort, boardUi);
-        pieceSelection = new PieceSelection(mouse, board, boardUi);
+        selectionMoving = new SelectionMoving(mouse, board, boardUi, this);
 
         new LoadTestPosition(board);
     }
 
     private void update(float delta) {
-        pieceSelection.update();
+        if(!engineEnabled) {
+            // 2 player mode; alternate selecting
+            selectionMoving.update(currentPlaying);
+        } else {
+            if(currentPlaying != playerColor) {
+                // TODO: play engine move and switch player
+            } else {
+                selectionMoving.update(playerColor);
+            }
+        }
+
+
+        // reset at the end of all logic
+        mouse.justPressed = false;
     }
 
     @Override
@@ -100,10 +117,14 @@ public class GameScreen implements Screen {
     }
 
     public Piece getSelectedPiece() {
-        return pieceSelection.getSelected();
+        return selectionMoving.getSelected();
     }
 
     public Board getBoard() {
         return board;
+    }
+
+    public void switchPlayer() {
+        currentPlaying = (currentPlaying == PieceColor.BLACK) ? PieceColor.WHITE : PieceColor.BLACK;
     }
 }

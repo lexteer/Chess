@@ -16,6 +16,7 @@ public class Mouse extends InputAdapter {
 
     public Vector2 position = new Vector2();
     public boolean pressed;
+    public boolean justPressed;
     public boolean dragging;
 
     public Mouse(OrthographicCamera camera, Viewport viewport, BoardUi boardUi) {
@@ -31,6 +32,7 @@ public class Mouse extends InputAdapter {
         position.y = screenY;
 
         pressed = true;
+        justPressed = true;
         dragging = false;
 
         return true;
