@@ -4,8 +4,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import lexteer.chess.assets.Assets;
 import lexteer.chess.main.GameScreen;
+import lexteer.chess.main.Move;
 import lexteer.chess.main.enums.File;
 import lexteer.chess.main.enums.PieceColor;
+import lexteer.chess.main.enums.PieceType;
 import lexteer.chess.pieces.Piece;
 
 public class Board {
@@ -52,18 +54,27 @@ public class Board {
         return squares[index] == null;
     }
 
-    public void set(int index, Piece piece) {
-        if(index == -1 || piece == null) return;
+    public void initPiece(int index, PieceType type, PieceColor color) {
+        if(index < 0 || index > 63) return;
 
-        int pieceIndex = index(piece);
-        if(pieceIndex != -1) squares[pieceIndex] = null;;
+        Piece newPiece = new Piece(type, color);
 
+        squares[index] = newPiece;
+        newPiece.square = index;
 
-        float x = boardUi.getBoardX() + (getFile(index).getValue() * boardUi.getSquareSize());
-        float y = boardUi.getBoardY() + (getRank(index) * boardUi.getSquareSize());
+        centerPiece(newPiece);
+    }
 
-        squares[index] = piece;
+    public void centerPiece(Piece piece) {
+        if(piece.square == -1) return;
+        float x = boardUi.getBoardX() + (getFile(piece.square).getValue() * boardUi.getSquareSize());
+        float y = boardUi.getBoardY() + (getRank(piece.square) * boardUi.getSquareSize());
+
         piece.updatePosition(x, y);
+    }
+
+    public void set(int index, Piece piece) {
+        squares[index] = piece;
     }
 
     public void drawPieces(Batch batch) {

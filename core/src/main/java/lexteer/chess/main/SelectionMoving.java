@@ -1,5 +1,7 @@
 package lexteer.chess.main;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Cursor;
 import lexteer.chess.board.Board;
 import lexteer.chess.board.BoardUi;
 import lexteer.chess.main.enums.PieceColor;
@@ -10,18 +12,23 @@ public class SelectionMoving {
     private final Board board;
     private final BoardUi boardUi;
     private final GameScreen gameScreen;
+    private final GameState state;
 
     private Piece selectedPiece = null;
+
+    int[] moveBuf = new int[32];
+    int moveCount = 0;
 
     // helpers
     private boolean reselected = false;
     private boolean pickUpPiece = false;
 
-    public SelectionMoving(Mouse mouse, Board board, BoardUi boardUi, GameScreen gameScreen) {
+    public SelectionMoving(Mouse mouse, Board board, BoardUi boardUi, GameScreen gameScreen, GameState state) {
         this.mouse = mouse;
         this.board = board;
         this.boardUi = boardUi;
         this.gameScreen = gameScreen;
+        this.state = state;
     }
 
     public void update(PieceColor currentColor) {
@@ -29,6 +36,13 @@ public class SelectionMoving {
         Piece mousePiece = board.get(mouseIndex);
         boolean mousePressed = mouse.pressed;
         boolean mouseDragging = mouse.dragging;
+
+        // change to hand cursor on pieces
+        if(mousePiece != null && mousePiece.getColor() == currentColor || pickUpPiece) {
+            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+        } else {
+            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+        }
 
         selectNewPiece(mouseIndex, mousePiece, currentColor);
         selectedFollowMouse(mouseIndex, mousePiece, mousePressed, mouseDragging);
@@ -44,10 +58,12 @@ public class SelectionMoving {
 
             if (selectedPiece == null) {
                 selectedPiece = mousePiece;
+                moveCount = Rules.generateLegalMoves(state, selectedPiece.square, moveBuf);
             }
             // reselect
             else if(selectedPiece.getColor() == mousePiece.getColor() && !reselected){
                 selectedPiece = mousePiece;
+                moveCount = Rules.generateLegalMoves(state, selectedPiece.square, moveBuf);
                 reselected = true;
             }
         } else {
@@ -92,7 +108,7 @@ public class SelectionMoving {
             if(mouseIndex == board.index(selectedPiece)) return;
 
             if(mousePiece == null || mousePiece.getColor() != selectedPiece.getColor()) {
-                movePiece(mouseIndex, selectedPiece);
+                movePiece(mouseIndex);
             }
         }
     }
@@ -108,7 +124,7 @@ public class SelectionMoving {
 
         if(mousePiece == null || mousePiece.getColor() != selectedPiece.getColor()) {
             if(pickUpPiece) {
-                movePiece(mouseIndex, selectedPiece);
+                movePiece(mouseIndex);
             }
         } else {
             resetSelectedPiecePos();
@@ -116,18 +132,34 @@ public class SelectionMoving {
     }
 
     private void resetSelectedPiecePos() {
-        board.set(board.index(selectedPiece), selectedPiece);
+        board.centerPiece(selectedPiece);
     }
 
     public Piece getSelected() {
         return selectedPiece;
     }
 
-    public void movePiece(int index, Piece piece) {
-        board.set(index, piece);
-        selectedPiece = null;
+    public void movePiece(int index) {
+        int chosen = -1;
+        // check if the target is one of the generated legal moves
+        for(int i = 0; i < moveCount; i++) {
+            int mv = moveBuf[i];
+            if(Move.to(mv) == index) {
+                chosen = mv;
+                break;
+            }
+        }
+
+        if(chosen != -1) {
+            // apply the move
+            state.applyMove(chosen);
+            selectedPiece = null;
+            gameScreen.switchPlayer();
+        } else {
+            resetSelectedPiecePos();
+        }
+
         mouse.pressed = false;
-        gameScreen.switchPlayer();
     }
 
     // keeps the dragged piece inside the board
@@ -155,5 +187,13 @@ public class SelectionMoving {
         if(y > maxY) return maxY;
 
         return y;
+    }
+
+    public int getMoveCount() {
+        return moveCount;
+    }
+
+    public int[] getMoveBuf() {
+        return moveBuf;
     }
 }

@@ -26,6 +26,7 @@ public class GameScreen implements Screen {
     private Board board;
     private Mouse mouse;
     private SelectionMoving selectionMoving;
+    private GameState state;
 
     private PieceColor currentPlaying;
 
@@ -47,7 +48,8 @@ public class GameScreen implements Screen {
         boardUi = new BoardUi(camera, this);
         board = new Board(boardUi, this);
         mouse = new Mouse(camera, viewPort, boardUi);
-        selectionMoving = new SelectionMoving(mouse, board, boardUi, this);
+        state = new GameState(board);
+        selectionMoving = new SelectionMoving(mouse, board, boardUi, this, state);
 
         new LoadTestPosition(board);
     }
@@ -85,7 +87,6 @@ public class GameScreen implements Screen {
         batch.begin();
             board.drawPieces(batch);
         batch.end();
-
     }
 
     @Override
@@ -122,6 +123,10 @@ public class GameScreen implements Screen {
 
     public Board getBoard() {
         return board;
+    }
+
+    public SelectionMoving getSelectionMoving() {
+        return selectionMoving;
     }
 
     public void switchPlayer() {

@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import lexteer.chess.main.GameScreen;
+import lexteer.chess.main.Move;
 import lexteer.chess.pieces.Piece;
 
 public class BoardUi {
@@ -44,6 +45,8 @@ public class BoardUi {
         drawDarkSquares(squareSize, boardX, boardY);
 
         highlightSelectedSquare();
+
+        drawLegalMoves();
 
         shapeRenderer.end();
     }
@@ -107,6 +110,29 @@ public class BoardUi {
 
         shapeRenderer.setColor(Color.BLUE);
         shapeRenderer.rect(x, y, getSquareSize(), getSquareSize());
+    }
+
+    private void drawLegalMoves() {
+        Piece selectedPiece = gameScreen.getSelectedPiece();
+        if(selectedPiece == null) return;
+
+        int moveCount = gameScreen.getSelectionMoving().getMoveCount();
+        int[] moveBuf = gameScreen.getSelectionMoving().getMoveBuf();
+
+        for (int i = 0; i < moveCount; i++) {
+            int to = Move.to(moveBuf[i]);
+
+            Board board = gameScreen.getBoard();
+
+            float x = getSquareX(to);
+            float y = getSquareY(to);
+
+            x += (getSquareSize()/2) / 2;
+            y += (getSquareSize()/2) / 2;
+
+            shapeRenderer.setColor(Color.GREEN);
+            shapeRenderer.rect(x, y, getSquareSize()/2, getSquareSize()/2);
+        }
     }
 
     public void dispose() {

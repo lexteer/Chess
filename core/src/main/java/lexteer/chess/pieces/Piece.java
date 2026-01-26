@@ -8,6 +8,7 @@ public class Piece {
     private PieceType type;
     private PieceColor color;
     private Vector2 position = new Vector2();
+    public int square = -1;
 
     public Piece(PieceType type, PieceColor color) {
         this.type = type;
