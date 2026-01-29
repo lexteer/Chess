@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import lexteer.chess.main.GameScreen;
-import lexteer.chess.main.Move;
 import lexteer.chess.pieces.Piece;
 
 public class BoardUi {
@@ -16,7 +15,7 @@ public class BoardUi {
     private final Color dark = Color.valueOf("B58863");
 
     private final ShapeRenderer shapeRenderer;
-    private final OrthographicCamera camera;
+    public final OrthographicCamera camera;
     private final GameScreen gameScreen;
 
     public BoardUi(OrthographicCamera camera, GameScreen gamescreen) {

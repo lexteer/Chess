@@ -10,6 +10,10 @@ public class GameState {
 
     // special moves flags
     public int enPassantSquare = -1;
+    // promotion
+    public boolean promotionPending = false;
+    public int pendingMove;
+    public PieceColor pendingColor;
 
     public GameState(Board board) {
         this.board = board;
@@ -29,13 +33,20 @@ public class GameState {
 
         enPassantCapture(flags, pieceToMove, to);
 
+        handleCastling(flags, to);
+
         // normal move
         board.set(from, null); // clear "from"
+
+        pieceToMove = checkPromotion(flags, pieceToMove, move); // modifies pieceToMove to exm. queen
+
         board.set(to, pieceToMove); // move piece
         pieceToMove.square = to; // update pieces square index
         board.centerPiece(pieceToMove);
 
         createEPSquare(from, to, pieceToMove);
+
+        pieceToMove.pieceMoved();
     }
 
     // removes the pawn behind the target square
@@ -55,5 +66,37 @@ public class GameState {
                 enPassantSquare = (from + to) / 2;
             }
         }
+    }
+
+    private Piece checkPromotion(int flags, Piece pieceToMove, int move) {
+        if((flags & Move.PROMO) != 0) {
+            PieceType type = PieceType.values()[Move.promo(move)];
+            return new Piece(type, pieceToMove.getColor());
+        }
+        return pieceToMove;
+    }
+
+    private void handleCastling(int flags, int to) {
+        if((flags & Move.CASTLE) == 0) return;
+
+        int rookFrom = -1;
+        int rookTo = -1;
+
+        if (to == 6) { rookFrom = 7; rookTo = 5; }
+        else if (to == 2) { rookFrom = 0;  rookTo = 3; }
+        else if (to == 62) { rookFrom = 63; rookTo = 61; }
+        else if (to == 58) { rookFrom = 56; rookTo = 59; }
+
+        if(rookFrom == -1) return;
+
+        Piece rook = board.get(rookFrom);
+        if (rook == null) return;
+
+        board.set(rookFrom, null);
+        board.set(rookTo, rook);
+        rook.square = rookTo;
+        board.centerPiece(rook);
+
+        rook.pieceMoved();
     }
 }

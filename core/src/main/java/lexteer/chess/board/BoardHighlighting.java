@@ -1,7 +1,9 @@
 package lexteer.chess.board;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import lexteer.chess.main.GameScreen;
 import lexteer.chess.main.Mouse;
@@ -32,6 +34,9 @@ public class BoardHighlighting {
 
 
         drawLegalMoves();
+
+        // DEBUG: draw all squares attached by enemy
+        drawEnemySquares();
 
         shapeRenderer.end();
     }
@@ -74,6 +79,22 @@ public class BoardHighlighting {
         shapeRenderer.rect(x, y + thickness, thickness, height - 2f * thickness);
         // Right
         shapeRenderer.rect(x + width - thickness, y + thickness, thickness, height - 2f * thickness);
+    }
+
+    private void drawEnemySquares() {
+        boolean[] squares = gameScreen.getEnemyAttackedSquares();
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        for(int i = 0; i < squares.length; i++) {
+            if(squares[i]) {
+                float x = boardUi.getSquareX(i);
+                float y = boardUi.getSquareY(i);
+                shapeRenderer.setColor(1f, 0f, 0f, 0.5f);
+                shapeRenderer.rect(x, y, squareSize, squareSize);
+            }
+        }
     }
 
 

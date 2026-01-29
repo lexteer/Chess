@@ -1,5 +1,7 @@
 package lexteer.chess.main;
 
+import lexteer.chess.main.enums.PieceType;
+
 public final class Move {
     // flags
     public static final int CAPTURE   = 1 << 12;
@@ -36,6 +38,16 @@ public final class Move {
     public static int promo(int mv) {
         return (mv >>> 16) & 0xF;
     }
+
+    public static int withPromo(int mv, int promo) {
+        // clear bits 16..19, then set them
+        mv = mv & ~(0xF << 16);
+        mv |= (promo & 0xF) << 16;
+        // ensure PROMO flag is set
+        mv |= PROMO;
+        return mv;
+    }
+
 
     public static boolean isCapture(int mv) {
         return (mv & CAPTURE) != 0;

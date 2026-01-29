@@ -9,6 +9,7 @@ public class Piece {
     private PieceColor color;
     private Vector2 position = new Vector2();
     public int square = -1;
+    private boolean hasMoved = false;
 
     public Piece(PieceType type, PieceColor color) {
         this.type = type;
@@ -32,4 +33,11 @@ public class Piece {
         return position;
     }
 
+    public void pieceMoved() {
+        hasMoved = true;
+    }
+
+    public boolean hasMoved() {
+        return hasMoved;
+    }
 }

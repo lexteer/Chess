@@ -8,10 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import lexteer.chess.board.Board;
-import lexteer.chess.board.BoardHighlighting;
-import lexteer.chess.board.BoardUi;
-import lexteer.chess.board.LoadTestPosition;
+import lexteer.chess.board.*;
 import lexteer.chess.main.enums.PieceColor;
 import lexteer.chess.pieces.Piece;
 
@@ -31,6 +28,8 @@ public class GameScreen implements Screen {
     private GameState state;
 
     private PieceColor currentPlaying;
+
+    private static boolean[] enemyAttackedSquares = new boolean[64];
 
     public GameScreen() {
         currentPlaying = PieceColor.WHITE; // white starts
@@ -58,6 +57,12 @@ public class GameScreen implements Screen {
     }
 
     private void update(float delta) {
+        if(PromotionGUI.isOpen()) {
+            PromotionGUI.update(mouse);
+            mouse.justPressed = false;
+            return;
+        }
+
         if(!engineEnabled) {
             // 2 player mode; alternate selecting
             selectionMoving.update(currentPlaying);
@@ -90,9 +95,8 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
             board.drawPieces(batch);
+            PromotionGUI.draw(batch);
         batch.end();
-
-
     }
 
     @Override
@@ -136,7 +140,12 @@ public class GameScreen implements Screen {
         return selectionMoving;
     }
 
+    public static boolean[] getEnemyAttackedSquares() {
+        return enemyAttackedSquares;
+    }
+
     public void switchPlayer() {
+        Rules.generateEnemyControlledSquares(state, currentPlaying, enemyAttackedSquares);
         currentPlaying = (currentPlaying == PieceColor.BLACK) ? PieceColor.WHITE : PieceColor.BLACK;
     }
 }

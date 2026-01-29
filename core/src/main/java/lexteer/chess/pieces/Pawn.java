@@ -7,6 +7,8 @@ import lexteer.chess.main.enums.PieceType;
 
 public final class Pawn {
 
+    //private static final int PROMO_QUEEN = PieceType.QUEEN.ordinal();
+
     private Pawn() {
     }
 
@@ -22,19 +24,24 @@ public final class Pawn {
 
         int count = 0;
 
-        count = addForwardMoves(state, pawn, from, fromRank, dir, white, outMoves, count);
-        count = addCaptureMoves(state, pawn, from, fromFile, dir, outMoves, count);
-        count = addEnPassantMoves(state, pawn, from, fromRank, fromFile, dir, white, outMoves, count);
+        count = addForwardMoves(state, from, fromRank, dir, white, outMoves, count);
+        count = addCaptureMoves(state, pawn, from, white, fromFile, dir, outMoves, count);
+        count = addEnPassantMoves(state, from, fromRank, fromFile, dir, white, outMoves, count);
 
         return count;
     }
 
-    private static int addForwardMoves(GameState state, Piece pawn, int from, int fromRank, int dir, boolean white, int[] outMoves, int count) {
+    private static int addForwardMoves(GameState state, int from, int fromRank, int dir, boolean white, int[] outMoves, int count) {
         int one = from + dir;
         if (!isValidSquare(one) || state.board.get(one) != null) return count;
 
         // Forward 1
-        outMoves[count++] = Move.make(from, one);
+        if(isPromotionRank(white, one)) {
+            outMoves[count++] = Move.make(from, one, Move.PROMO, 0);
+            return count;
+        } else {
+            outMoves[count++] = Move.make(from, one);
+        }
 
         // Forward 2 (only if on start rank and both squares empty)
         int startRank = white ? 1 : 6;
@@ -48,7 +55,7 @@ public final class Pawn {
         return count;
     }
 
-    private static int addCaptureMoves(GameState state, Piece pawn, int from, int fromFile, int dir, int[] outMoves, int count) {
+    private static int addCaptureMoves(GameState state, Piece pawn, int from, boolean white, int fromFile, int dir, int[] outMoves, int count) {
 
         // Diagonal left capture
         if (fromFile > 0) {
@@ -56,7 +63,11 @@ public final class Pawn {
             if (isValidSquare(capLeft)) {
                 Piece target = state.board.get(capLeft);
                 if (target != null && target.getColor() != pawn.getColor()) {
-                    outMoves[count++] = Move.makeCapture(from, capLeft);
+                    if(isPromotionRank(white, capLeft)) {
+                        outMoves[count++] = Move.make(from, capLeft, Move.CAPTURE | Move.PROMO, 0);
+                    } else {
+                        outMoves[count++] = Move.makeCapture(from, capLeft);
+                    }
                 }
             }
         }
@@ -67,7 +78,11 @@ public final class Pawn {
             if (isValidSquare(capRight)) {
                 Piece target = state.board.get(capRight);
                 if (target != null && target.getColor() != pawn.getColor()) {
-                    outMoves[count++] = Move.makeCapture(from, capRight);
+                    if(isPromotionRank(white, capRight)) {
+                        outMoves[count++] = Move.make(from, capRight, Move.CAPTURE | Move.PROMO, 0);
+                    } else {
+                        outMoves[count++] = Move.makeCapture(from, capRight);
+                    }
                 }
             }
         }
@@ -75,7 +90,7 @@ public final class Pawn {
         return count;
     }
 
-    private static int addEnPassantMoves(GameState state, Piece pawn, int from, int fromRank, int fromFile, int dir, boolean white, int[] outMoves, int count) {
+    private static int addEnPassantMoves(GameState state, int from, int fromRank, int fromFile, int dir, boolean white, int[] outMoves, int count) {
         int ep = state.enPassantSquare;
         if (ep == -1) return count;
 
@@ -101,7 +116,25 @@ public final class Pawn {
         return count;
     }
 
+    private static boolean isPromotionRank(boolean white, int to) {
+        int rank = to >>> 3;
+        return white ? (rank == 7) : (rank == 0);
+    }
+
     private static boolean isValidSquare(int sq) {
         return sq >= 0 && sq < 64;
+    }
+
+    // for controlled squares; only diagonal attacks
+    public static boolean pawnAttacks(int from, PieceColor pawnColor, int target) {
+        int file = from & 7;
+        if (pawnColor == PieceColor.WHITE) {
+            if (file > 0 && from + 7 == target) return true;
+            if (file < 7 && from + 9 == target) return true;
+        } else {
+            if (file > 0 && from - 9 == target) return true;
+            if (file < 7 && from - 7 == target) return true;
+        }
+        return false;
     }
 }

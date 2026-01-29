@@ -1,6 +1,7 @@
 package lexteer.chess.pieces;
 
 import lexteer.chess.board.Board;
+import lexteer.chess.main.GameScreen;
 import lexteer.chess.main.Move;
 import lexteer.chess.main.enums.PieceType;
 
@@ -36,7 +37,63 @@ public final class King {
             }
         }
 
+        // --- CASTLING ---
+        boolean[] attacked = GameScreen.getEnemyAttackedSquares();
+
+        // If the king has moved, castling is never legal.
+        if (!king.hasMoved()) {
+
+            // White castling (king on e1)
+            if (from == 4) {
+                if (canCastle(board, attacked, 7, new int[]{5, 6}, new int[]{4, 5, 6}, king)) {
+                    outMoves[count++] = Move.make(from, 6, Move.CASTLE, 0);
+                }
+                if (canCastle(board, attacked, 0, new int[]{3, 2, 1}, new int[]{4, 3, 2}, king)) {
+                    outMoves[count++] = Move.make(from, 2, Move.CASTLE, 0);
+                }
+            }
+
+            // Black castling (king on e8)
+            if (from == 60) {
+                if (canCastle(board, attacked, 63, new int[]{61, 62}, new int[]{60, 61, 62}, king)) {
+                    outMoves[count++] = Move.make(from, 62, Move.CASTLE, 0);
+                }
+                if (canCastle(board, attacked, 56, new int[]{59, 58, 57}, new int[]{60, 59, 58}, king)) {
+                    outMoves[count++] = Move.make(from, 58, Move.CASTLE, 0);
+                }
+            }
+        }
+
         return count;
+    }
+
+    private static boolean canCastle(Board board, boolean[] attacked, int rookSq, int[] emptySquares, int[] kingPath, Piece king) {
+        Piece rook = board.get(rookSq);
+        if (rook == null) return false;
+        if (rook.getColor() != king.getColor()) return false;
+        if (rook.getType() != PieceType.ROOK) return false;
+
+        // rook must not have moved
+        if (rook.hasMoved()) return false;
+
+        // squares between king and rook must be empty
+        for (int sq : emptySquares) {
+            if (board.get(sq) != null) return false;
+        }
+
+        // king may not castle out of / through / into check
+        for (int sq : kingPath) {
+            if (attacked[sq]) return false;
+        }
+
+        return true;
+    }
+
+
+    public static boolean kingAttacks(int from, int target) {
+        int df = Math.abs((from & 7) - (target & 7));
+        int dr = Math.abs((from >>> 3) - (target >>> 3));
+        return df <= 1 && dr <= 1;
     }
 }
 

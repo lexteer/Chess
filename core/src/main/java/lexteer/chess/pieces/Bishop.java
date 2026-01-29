@@ -2,6 +2,7 @@ package lexteer.chess.pieces;
 
 import lexteer.chess.board.Board;
 import lexteer.chess.main.Move;
+import lexteer.chess.main.Rules;
 import lexteer.chess.main.enums.PieceColor;
 import lexteer.chess.main.enums.PieceType;
 
@@ -53,6 +54,20 @@ public final class Bishop {
         int toFile = to & 7;
         if (dir == NE || dir == SE) return toFile == fromFile + 1;
         return toFile == fromFile - 1;
+    }
+
+    public static boolean bishopAttacks(Board board, int from, int target, boolean includeFirstBlocker) {
+        int df = (target & 7) - (from & 7);
+        int dr = (target >>> 3) - (from >>> 3);
+        if (Math.abs(df) != Math.abs(dr)) return false;
+
+        int step;
+        if (df > 0 && dr > 0) step = 9;
+        else if (df < 0 && dr > 0) step = 7;
+        else if (df > 0 && dr < 0) step = -7;
+        else step = -9;
+
+        return Rules.ray(board, from, target, step, includeFirstBlocker);
     }
 }
 

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cursor;
 import lexteer.chess.board.Board;
 import lexteer.chess.board.BoardUi;
+import lexteer.chess.board.PromotionGUI;
 import lexteer.chess.main.enums.PieceColor;
 import lexteer.chess.pieces.Piece;
 
@@ -152,6 +153,23 @@ public class SelectionMoving {
         }
 
         if(chosen != -1) {
+
+            // PROMOTION
+            final int chosenMove = chosen;
+            if((Move.flags(chosen) & Move.PROMO) != 0) {
+
+                PromotionGUI.open(boardUi, index, selectedPiece.getColor(), chosenType -> {
+                    int patched = Move.withPromo(chosenMove, chosenType.ordinal());
+
+                    state.applyMove(patched);
+                    selectedPiece = null;
+                    gameScreen.switchPlayer();
+                });
+                mouse.pressed = false;
+                return;
+            }
+
+
             // apply the move
             state.applyMove(chosen);
             selectedPiece = null;

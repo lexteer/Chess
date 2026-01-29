@@ -5,6 +5,8 @@ import lexteer.chess.main.Move;
 import lexteer.chess.main.enums.PieceColor;
 import lexteer.chess.main.enums.PieceType;
 
+import static lexteer.chess.main.Rules.ray;
+
 public class Rook {
     static final int NORTH = 8;
     static final int SOUTH = -8;
@@ -58,6 +60,21 @@ public class Rook {
         if (to < 0 || to >= 64) return false;
         if (dir == EAST || dir == WEST) return (from / 8) == (to / 8);
         return true;
+    }
+
+    public static boolean rookAttacks(Board board, int from, int target, boolean includeFirstBlocker) {
+        int ff = from & 7, fr = from >>> 3;
+        int tf = target & 7, tr = target >>> 3;
+
+        if (fr == tr) {
+            int step = (tf > ff) ? 1 : -1;
+            return ray(board, from, target, step, includeFirstBlocker);
+        }
+        if (ff == tf) {
+            int step = (tr > fr) ? 8 : -8;
+            return ray(board, from, target, step, includeFirstBlocker);
+        }
+        return false;
     }
 }
 

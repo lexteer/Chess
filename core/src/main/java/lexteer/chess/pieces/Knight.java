@@ -48,5 +48,11 @@ public final class Knight {
 
         return count;
     }
+
+    public static boolean knightAttacks(int from, int target) {
+        int df = Math.abs((from & 7) - (target & 7));
+        int dr = Math.abs((from >>> 3) - (target >>> 3));
+        return (df == 1 && dr == 2) || (df == 2 && dr == 1);
+    }
 }
 
