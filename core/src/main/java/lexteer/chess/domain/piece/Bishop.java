@@ -1,10 +1,8 @@
-package lexteer.chess.pieces;
+package lexteer.chess.domain.piece;
 
-import lexteer.chess.board.Board;
-import lexteer.chess.main.Move;
-import lexteer.chess.main.Rules;
-import lexteer.chess.main.enums.PieceColor;
-import lexteer.chess.main.enums.PieceType;
+import lexteer.chess.domain.board.Board;
+import lexteer.chess.domain.move.Move;
+import lexteer.chess.domain.game.Rules;
 
 public final class Bishop {
 

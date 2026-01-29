@@ -1,8 +1,6 @@
-package lexteer.chess.pieces;
+package lexteer.chess.domain.piece;
 
 import com.badlogic.gdx.math.Vector2;
-import lexteer.chess.main.enums.PieceColor;
-import lexteer.chess.main.enums.PieceType;
 
 public class Piece {
     private PieceType type;

@@ -1,4 +1,4 @@
-package lexteer.chess.main.enums;
+package lexteer.chess.domain.board;
 
 public enum File {
     A(0),

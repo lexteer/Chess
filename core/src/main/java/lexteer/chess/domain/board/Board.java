@@ -1,14 +1,13 @@
-package lexteer.chess.board;
+package lexteer.chess.domain.board;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import lexteer.chess.assets.Assets;
-import lexteer.chess.main.GameScreen;
-import lexteer.chess.main.Move;
-import lexteer.chess.main.enums.File;
-import lexteer.chess.main.enums.PieceColor;
-import lexteer.chess.main.enums.PieceType;
-import lexteer.chess.pieces.Piece;
+import lexteer.chess.app.GameScreen;
+import lexteer.chess.domain.piece.PieceColor;
+import lexteer.chess.domain.piece.PieceType;
+import lexteer.chess.domain.piece.Piece;
+import lexteer.chess.ui.board.BoardUi;
 
 public class Board {
     Piece[] squares;

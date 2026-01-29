@@ -1,6 +1,6 @@
-package lexteer.chess.main;
+package lexteer.chess.domain.move;
 
-import lexteer.chess.pieces.Piece;
+import lexteer.chess.domain.piece.Piece;
 
 public final class MoveSnapshot {
     public int from, to, flags;

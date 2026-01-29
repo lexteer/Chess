@@ -1,8 +1,7 @@
-package lexteer.chess.pieces;
+package lexteer.chess.domain.piece;
 
-import lexteer.chess.board.Board;
-import lexteer.chess.main.Move;
-import lexteer.chess.main.enums.PieceType;
+import lexteer.chess.domain.board.Board;
+import lexteer.chess.domain.move.Move;
 
 public final class Knight {
 

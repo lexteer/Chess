@@ -1,4 +1,4 @@
-package lexteer.chess.main;
+package lexteer.chess.app;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -8,9 +8,19 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import lexteer.chess.board.*;
-import lexteer.chess.main.enums.PieceColor;
-import lexteer.chess.pieces.Piece;
+import lexteer.chess.domain.game.GameState;
+import lexteer.chess.domain.game.GameOver;
+import lexteer.chess.domain.game.Rules;
+import lexteer.chess.domain.move.SelectionMoving;
+import lexteer.chess.domain.piece.PieceColor;
+import lexteer.chess.domain.game.Winner;
+import lexteer.chess.domain.piece.Piece;
+import lexteer.chess.domain.board.Board;
+import lexteer.chess.ui.board.BoardHighlighting;
+import lexteer.chess.ui.board.BoardUi;
+import lexteer.chess.ui.board.PromotionGUI;
+import lexteer.chess.ui.input.Mouse;
+import lexteer.chess.util.LoadTestPosition;
 
 public class GameScreen implements Screen {
 
@@ -31,9 +41,10 @@ public class GameScreen implements Screen {
 
     private static boolean[] enemyAttackedSquares = new boolean[64];
 
+
     private boolean gameOver = false;
-    private boolean checkMate = false;
-    private boolean staleMate = false;
+    private GameOver gameOverType;
+    private Winner winner;
 
     public GameScreen() {
         currentPlaying = PieceColor.WHITE; // white starts
@@ -53,7 +64,7 @@ public class GameScreen implements Screen {
         boardUi = new BoardUi(camera, this);
         board = new Board(boardUi, this);
         mouse = new Mouse(camera, viewPort, boardUi);
-        state = new GameState(board);
+        state = new GameState(this, board);
         selectionMoving = new SelectionMoving(mouse, board, boardUi, this, state);
         boardHighlighting = new BoardHighlighting(this, boardUi, camera, mouse);
 
@@ -62,11 +73,7 @@ public class GameScreen implements Screen {
 
     private void update(float delta) {
         if(gameOver) {
-            if(checkMate) {
-                System.out.println("Game over by checkmate");
-            } else if (staleMate) {
-                System.out.println("Game over by stalemate");
-            }
+            System.out.println(winner);
             return;
         }
 
@@ -164,14 +171,23 @@ public class GameScreen implements Screen {
     }
 
     private void checkGameOver(PieceColor sideToMove) {
+        Winner win = (sideToMove == PieceColor.BLACK) ? Winner.WHITE : Winner.BLACK;
+
         if(Rules.isCheckMate(state, sideToMove)) {
             gameOver = true;
-            checkMate = true;
+            gameOverType = GameOver.CHECKMATE;
+            winner = win;
+        }
+        else if(Rules.isStaleMate(state, sideToMove)) {
+            gameOver = true;
+            gameOverType = GameOver.STALEMATE;
+            winner = Winner.DRAW;
+        }
+        else if(state.getHalfMoveCounter() >= 100) {
+            gameOver = true;
+            gameOverType = GameOver.FIFTYMOVES;
+            winner = Winner.DRAW;
         }
 
-        if(Rules.isStaleMate(state, sideToMove)) {
-            gameOver = true;
-            staleMate = true;
-        }
     }
 }

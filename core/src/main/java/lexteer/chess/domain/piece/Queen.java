@@ -1,7 +1,6 @@
-package lexteer.chess.pieces;
+package lexteer.chess.domain.piece;
 
-import lexteer.chess.board.Board;
-import lexteer.chess.main.enums.PieceType;
+import lexteer.chess.domain.board.Board;
 
 public class Queen {
     public static int generatePseudo(Board board, int from, int[] outMoves) {

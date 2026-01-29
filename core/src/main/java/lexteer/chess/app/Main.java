@@ -1,4 +1,4 @@
-package lexteer.chess.main;
+package lexteer.chess.app;
 
 import com.badlogic.gdx.Game;
 import lexteer.chess.assets.Assets;

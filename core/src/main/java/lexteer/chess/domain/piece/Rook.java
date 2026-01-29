@@ -1,11 +1,9 @@
-package lexteer.chess.pieces;
+package lexteer.chess.domain.piece;
 
-import lexteer.chess.board.Board;
-import lexteer.chess.main.Move;
-import lexteer.chess.main.enums.PieceColor;
-import lexteer.chess.main.enums.PieceType;
+import lexteer.chess.domain.board.Board;
+import lexteer.chess.domain.move.Move;
 
-import static lexteer.chess.main.Rules.ray;
+import static lexteer.chess.domain.game.Rules.ray;
 
 public class Rook {
     static final int NORTH = 8;

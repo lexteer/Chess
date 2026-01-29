@@ -1,6 +1,4 @@
-package lexteer.chess.main;
-
-import lexteer.chess.main.enums.PieceType;
+package lexteer.chess.domain.move;
 
 public final class Move {
     // flags

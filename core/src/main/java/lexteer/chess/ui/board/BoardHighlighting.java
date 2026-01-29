@@ -1,14 +1,14 @@
-package lexteer.chess.board;
+package lexteer.chess.ui.board;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import lexteer.chess.main.GameScreen;
-import lexteer.chess.main.Mouse;
-import lexteer.chess.main.Move;
-import lexteer.chess.pieces.Piece;
+import lexteer.chess.app.GameScreen;
+import lexteer.chess.ui.input.Mouse;
+import lexteer.chess.domain.move.Move;
+import lexteer.chess.domain.piece.Piece;
 
 public class BoardHighlighting {
     BoardUi boardUi;

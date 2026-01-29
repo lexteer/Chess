@@ -1,12 +1,16 @@
-package lexteer.chess.main;
+package lexteer.chess.domain.move;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cursor;
-import lexteer.chess.board.Board;
-import lexteer.chess.board.BoardUi;
-import lexteer.chess.board.PromotionGUI;
-import lexteer.chess.main.enums.PieceColor;
-import lexteer.chess.pieces.Piece;
+import lexteer.chess.domain.board.Board;
+import lexteer.chess.domain.game.GameState;
+import lexteer.chess.domain.game.Rules;
+import lexteer.chess.app.GameScreen;
+import lexteer.chess.ui.board.BoardUi;
+import lexteer.chess.ui.board.PromotionGUI;
+import lexteer.chess.domain.piece.PieceColor;
+import lexteer.chess.domain.piece.Piece;
+import lexteer.chess.ui.input.Mouse;
 
 public class SelectionMoving {
     private final Mouse mouse;

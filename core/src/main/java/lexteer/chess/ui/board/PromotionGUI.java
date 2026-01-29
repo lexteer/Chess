@@ -1,4 +1,4 @@
-package lexteer.chess.board;
+package lexteer.chess.ui.board;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -6,9 +6,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import lexteer.chess.assets.Assets;
-import lexteer.chess.main.Mouse;
-import lexteer.chess.main.enums.PieceColor;
-import lexteer.chess.main.enums.PieceType;
+import lexteer.chess.ui.input.Mouse;
+import lexteer.chess.domain.piece.PieceColor;
+import lexteer.chess.domain.piece.PieceType;
 
 import java.util.function.Consumer;
 

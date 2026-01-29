@@ -1,8 +1,8 @@
-package lexteer.chess.main;
+package lexteer.chess.domain.game;
 
-import lexteer.chess.board.Board;
-import lexteer.chess.main.enums.PieceColor;
-import lexteer.chess.pieces.*;
+import lexteer.chess.domain.board.Board;
+import lexteer.chess.domain.move.MoveSnapshot;
+import lexteer.chess.domain.piece.*;
 
 public class Rules {
     private static int[] tmp = new int[64];

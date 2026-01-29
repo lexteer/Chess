@@ -1,7 +1,8 @@
-package lexteer.chess.board;
+package lexteer.chess.util;
 
-import lexteer.chess.main.enums.PieceColor;
-import lexteer.chess.main.enums.PieceType;
+import lexteer.chess.domain.board.Board;
+import lexteer.chess.domain.piece.PieceColor;
+import lexteer.chess.domain.piece.PieceType;
 
 public class LoadTestPosition {
     Board board;

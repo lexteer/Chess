@@ -1,11 +1,15 @@
-package lexteer.chess.main;
+package lexteer.chess.domain.game;
 
-import lexteer.chess.board.Board;
-import lexteer.chess.main.enums.PieceColor;
-import lexteer.chess.main.enums.PieceType;
-import lexteer.chess.pieces.Piece;
+import lexteer.chess.domain.board.Board;
+import lexteer.chess.app.GameScreen;
+import lexteer.chess.domain.move.Move;
+import lexteer.chess.domain.move.MoveSnapshot;
+import lexteer.chess.domain.piece.PieceColor;
+import lexteer.chess.domain.piece.PieceType;
+import lexteer.chess.domain.piece.Piece;
 
 public class GameState {
+    private final GameScreen gameScreen;
     public final Board board;
 
     // special moves flags
@@ -15,7 +19,11 @@ public class GameState {
     public int pendingMove;
     public PieceColor pendingColor;
 
-    public GameState(Board board) {
+    // special rules
+    private int fiftyCountRule = 0;
+
+    public GameState(GameScreen gameScreen, Board board) {
+        this.gameScreen = gameScreen;
         this.board = board;
     }
 
@@ -34,6 +42,8 @@ public class GameState {
         enPassantCapture(flags, pieceToMove, to);
 
         handleCastling(flags, to);
+
+        updateFiftyMoveRuleCounter(pieceToMove, flags);
 
         // normal move
         board.set(from, null); // clear "from"
@@ -203,5 +213,17 @@ public class GameState {
         // Restore moved piece back to "from"
         board.set(s.from, s.movedPiece);
         s.movedPiece.square = s.movedOldSquare;
+    }
+
+    private void updateFiftyMoveRuleCounter(Piece piece, int flags) {
+        if(piece.getType() == PieceType.PAWN || (flags & Move.CAPTURE) != 0) {
+            fiftyCountRule = 0;
+        } else {
+            fiftyCountRule++;
+        }
+    }
+
+    public int getHalfMoveCounter() {
+        return fiftyCountRule;
     }
 }

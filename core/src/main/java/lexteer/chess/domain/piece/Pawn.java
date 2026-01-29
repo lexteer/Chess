@@ -1,9 +1,7 @@
-package lexteer.chess.pieces;
+package lexteer.chess.domain.piece;
 
-import lexteer.chess.main.GameState;
-import lexteer.chess.main.Move;
-import lexteer.chess.main.enums.PieceColor;
-import lexteer.chess.main.enums.PieceType;
+import lexteer.chess.domain.game.GameState;
+import lexteer.chess.domain.move.Move;
 
 public final class Pawn {
 
