@@ -77,6 +77,17 @@ public class Board {
         squares[index] = piece;
     }
 
+    public Piece getKing(PieceColor color) {
+        for(Piece piece : squares) {
+            if(piece == null || piece.getColor() != color) continue;
+
+            if(piece.getType() == PieceType.KING) {
+                return piece;
+            }
+        }
+        return null;
+    }
+
     public void drawPieces(Batch batch) {
         Piece selected = null;
         Texture selectedTex = null;

@@ -99,4 +99,109 @@ public class GameState {
 
         rook.pieceMoved();
     }
+
+    // METHODS FOR TEMP MOVES FOR LEGALITY CHECKS
+    public MoveSnapshot applyMoveLite(int move) {
+        MoveSnapshot s = new MoveSnapshot();
+
+        s.from = Move.from(move);
+        s.to = Move.to(move);
+        s.flags = Move.flags(move);
+
+        Piece moving = board.get(s.from);
+        if (moving == null) return s; // snapshot will be mostly empty; caller can handle
+
+        s.movedPiece = moving;
+        s.movedOldSquare = moving.square;
+
+        s.capturedOnTo = board.get(s.to);
+
+        // --- En passant capture: captured pawn is behind "to" ---
+        if ((s.flags & Move.ENPASSANT) != 0 && moving.getType() == PieceType.PAWN) {
+            s.epCapturedSq = (moving.getColor() == PieceColor.WHITE) ? (s.to - 8) : (s.to + 8);
+            s.epCapturedPiece = board.get(s.epCapturedSq);
+        }
+
+        // --- Castling rook shift ---
+        if ((s.flags & Move.CASTLE) != 0 && moving.getType() == PieceType.KING) {
+            if (s.to == 6) { s.rookFrom = 7;  s.rookTo = 5; }
+            else if (s.to == 2) { s.rookFrom = 0;  s.rookTo = 3; }
+            else if (s.to == 62) { s.rookFrom = 63; s.rookTo = 61; }
+            else if (s.to == 58) { s.rookFrom = 56; s.rookTo = 59; }
+
+            if (s.rookFrom != -1) {
+                s.rook = board.get(s.rookFrom);
+                if (s.rook != null) {
+                    s.rookOldSquare = s.rook.square;
+                } else {
+                    // Defensive: invalid castle state; keep rookFrom/To but rookPiece null
+                    s.rookFrom = -1;
+                    s.rookTo = -1;
+                }
+            }
+        }
+
+        // ---- APPLY ----
+
+        // Clear from
+        board.set(s.from, null);
+
+        // Remove EP captured pawn
+        if (s.epCapturedSq != -1) {
+            board.set(s.epCapturedSq, null);
+        }
+
+        // Move rook for castling
+        if (s.rookFrom != -1 && s.rook != null) {
+            board.set(s.rookFrom, null);
+            board.set(s.rookTo, s.rook);
+            s.rook.square = s.rookTo;
+        }
+
+        // Promotion: place a temporary promoted piece on "to"
+        if ((s.flags & Move.PROMO) != 0 && moving.getType() == PieceType.PAWN) {
+            s.wasPromotion = true;
+            PieceType promoType = PieceType.values()[Move.promo(move)];
+            s.promotionPiece = new Piece(promoType, moving.getColor());
+
+            board.set(s.to, s.promotionPiece);
+            s.promotionPiece.square = s.to;
+        } else {
+            board.set(s.to, moving);
+            moving.square = s.to;
+        }
+
+        return s;
+    }
+
+    public void undoMoveLite(MoveSnapshot s) {
+        if (s == null || s.movedPiece == null) return;
+
+        // Remove whatever we placed on "to" during apply
+        if (s.wasPromotion) {
+            // remove promoted piece from "to"
+            board.set(s.to, null);
+        } else {
+            board.set(s.to, null);
+        }
+
+        // Undo castling rook
+        if (s.rookFrom != -1 && s.rook != null) {
+            board.set(s.rookTo, null);
+            board.set(s.rookFrom, s.rook);
+            s.rook.square = s.rookOldSquare;
+        }
+
+        // Restore en passant captured pawn
+        if (s.epCapturedSq != -1) {
+            board.set(s.epCapturedSq, s.epCapturedPiece);
+        }
+
+        // Restore captured piece on "to" (can be null)
+        board.set(s.to, s.capturedOnTo);
+
+        // Restore moved piece back to "from"
+        board.set(s.from, s.movedPiece);
+        s.movedPiece.square = s.movedOldSquare;
+    }
 }

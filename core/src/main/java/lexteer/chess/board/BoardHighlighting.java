@@ -36,7 +36,7 @@ public class BoardHighlighting {
         drawLegalMoves();
 
         // DEBUG: draw all squares attached by enemy
-        drawEnemySquares();
+        //drawEnemySquares();
 
         shapeRenderer.end();
     }

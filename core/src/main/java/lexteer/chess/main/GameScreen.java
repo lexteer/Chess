@@ -31,6 +31,10 @@ public class GameScreen implements Screen {
 
     private static boolean[] enemyAttackedSquares = new boolean[64];
 
+    private boolean gameOver = false;
+    private boolean checkMate = false;
+    private boolean staleMate = false;
+
     public GameScreen() {
         currentPlaying = PieceColor.WHITE; // white starts
     }
@@ -57,6 +61,15 @@ public class GameScreen implements Screen {
     }
 
     private void update(float delta) {
+        if(gameOver) {
+            if(checkMate) {
+                System.out.println("Game over by checkmate");
+            } else if (staleMate) {
+                System.out.println("Game over by stalemate");
+            }
+            return;
+        }
+
         if(PromotionGUI.isOpen()) {
             PromotionGUI.update(mouse);
             mouse.justPressed = false;
@@ -147,5 +160,18 @@ public class GameScreen implements Screen {
     public void switchPlayer() {
         Rules.generateEnemyControlledSquares(state, currentPlaying, enemyAttackedSquares);
         currentPlaying = (currentPlaying == PieceColor.BLACK) ? PieceColor.WHITE : PieceColor.BLACK;
+        checkGameOver(currentPlaying);
+    }
+
+    private void checkGameOver(PieceColor sideToMove) {
+        if(Rules.isCheckMate(state, sideToMove)) {
+            gameOver = true;
+            checkMate = true;
+        }
+
+        if(Rules.isStaleMate(state, sideToMove)) {
+            gameOver = true;
+            staleMate = true;
+        }
     }
 }
