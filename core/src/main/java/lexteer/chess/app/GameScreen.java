@@ -8,12 +8,10 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import lexteer.chess.domain.game.GameState;
-import lexteer.chess.domain.game.GameOver;
-import lexteer.chess.domain.game.Rules;
+import lexteer.chess.domain.game.*;
+import lexteer.chess.domain.move.RepetitionTracker;
 import lexteer.chess.domain.move.SelectionMoving;
 import lexteer.chess.domain.piece.PieceColor;
-import lexteer.chess.domain.game.Winner;
 import lexteer.chess.domain.piece.Piece;
 import lexteer.chess.domain.board.Board;
 import lexteer.chess.ui.board.BoardHighlighting;
@@ -36,6 +34,7 @@ public class GameScreen implements Screen {
     private Mouse mouse;
     private SelectionMoving selectionMoving;
     private GameState state;
+    private RepetitionTracker repetitionTracker;
 
     private PieceColor currentPlaying;
 
@@ -69,6 +68,9 @@ public class GameScreen implements Screen {
         boardHighlighting = new BoardHighlighting(this, boardUi, camera, mouse);
 
         new LoadTestPosition(board);
+
+        state.updateZobristKey(PieceColor.WHITE); // initial hash
+        repetitionTracker = new RepetitionTracker(state.getZobristKey());
     }
 
     private void update(float delta) {
@@ -167,26 +169,37 @@ public class GameScreen implements Screen {
     public void switchPlayer() {
         Rules.generateEnemyControlledSquares(state, currentPlaying, enemyAttackedSquares);
         currentPlaying = (currentPlaying == PieceColor.BLACK) ? PieceColor.WHITE : PieceColor.BLACK;
+
+        state.updateZobristKey(currentPlaying);
+        repetitionTracker.addPosition(state.getZobristKey());
+
         checkGameOver(currentPlaying);
+    }
+
+    private void setGameOver(GameOver type, Winner winner) {
+        gameOver = true;
+        gameOverType = type;
+        this.winner = winner;
     }
 
     private void checkGameOver(PieceColor sideToMove) {
         Winner win = (sideToMove == PieceColor.BLACK) ? Winner.WHITE : Winner.BLACK;
+        Winner draw = Winner.DRAW;
 
-        if(Rules.isCheckMate(state, sideToMove)) {
-            gameOver = true;
-            gameOverType = GameOver.CHECKMATE;
-            winner = win;
+        if (Rules.isCheckMate(state, sideToMove)) {
+            setGameOver(GameOver.CHECKMATE, win);
         }
-        else if(Rules.isStaleMate(state, sideToMove)) {
-            gameOver = true;
-            gameOverType = GameOver.STALEMATE;
-            winner = Winner.DRAW;
+        else if (Rules.isStaleMate(state, sideToMove)) {
+            setGameOver(GameOver.STALEMATE, draw);
         }
-        else if(state.getHalfMoveCounter() >= 100) {
-            gameOver = true;
-            gameOverType = GameOver.FIFTYMOVES;
-            winner = Winner.DRAW;
+        else if (state.getHalfMoveCounter() >= 100) {
+            setGameOver(GameOver.FIFTYMOVES, draw);
+        }
+        else if (repetitionTracker.isThreeFold(state.getZobristKey())){
+            setGameOver(GameOver.THREEFOLD, draw);
+        }
+        else if (InsufficientMaterial.check(board)) {
+            setGameOver(GameOver.INSUFFICIENT, draw);
         }
 
     }

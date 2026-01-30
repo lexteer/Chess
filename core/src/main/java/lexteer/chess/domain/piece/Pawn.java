@@ -5,8 +5,6 @@ import lexteer.chess.domain.move.Move;
 
 public final class Pawn {
 
-    //private static final int PROMO_QUEEN = PieceType.QUEEN.ordinal();
-
     private Pawn() {
     }
 

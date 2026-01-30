@@ -2,6 +2,7 @@ package lexteer.chess.domain.game;
 
 import lexteer.chess.domain.board.Board;
 import lexteer.chess.app.GameScreen;
+import lexteer.chess.domain.board.Zobrist;
 import lexteer.chess.domain.move.Move;
 import lexteer.chess.domain.move.MoveSnapshot;
 import lexteer.chess.domain.piece.PieceColor;
@@ -21,6 +22,8 @@ public class GameState {
 
     // special rules
     private int fiftyCountRule = 0;
+
+    long zobristKey;
 
     public GameState(GameScreen gameScreen, Board board) {
         this.gameScreen = gameScreen;
@@ -225,5 +228,13 @@ public class GameState {
 
     public int getHalfMoveCounter() {
         return fiftyCountRule;
+    }
+
+    public void updateZobristKey(PieceColor sideToMove) {
+        zobristKey = Zobrist.compute(this, sideToMove);
+    }
+
+    public long getZobristKey() {
+        return zobristKey;
     }
 }
