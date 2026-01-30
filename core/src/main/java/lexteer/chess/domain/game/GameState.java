@@ -10,7 +10,7 @@ import lexteer.chess.domain.piece.PieceType;
 import lexteer.chess.domain.piece.Piece;
 
 public class GameState {
-    private final GameScreen gameScreen;
+    public final GameScreen gameScreen;
     public final Board board;
 
     // special moves flags
@@ -21,9 +21,10 @@ public class GameState {
     public PieceColor pendingColor;
 
     // special rules
-    private int fiftyCountRule = 0;
+    public int halfMoveClock = 0;
 
-    long zobristKey;
+    private long zobristKey;
+    public int fullMoves = 1;
 
     public GameState(GameScreen gameScreen, Board board) {
         this.gameScreen = gameScreen;
@@ -60,6 +61,10 @@ public class GameState {
         createEPSquare(from, to, pieceToMove);
 
         pieceToMove.pieceMoved();
+
+        if (pieceToMove.getColor() == PieceColor.BLACK) {
+            fullMoves++;
+        }
     }
 
     // removes the pawn behind the target square
@@ -220,14 +225,14 @@ public class GameState {
 
     private void updateFiftyMoveRuleCounter(Piece piece, int flags) {
         if(piece.getType() == PieceType.PAWN || (flags & Move.CAPTURE) != 0) {
-            fiftyCountRule = 0;
+            halfMoveClock = 0;
         } else {
-            fiftyCountRule++;
+            halfMoveClock++;
         }
     }
 
     public int getHalfMoveCounter() {
-        return fiftyCountRule;
+        return halfMoveClock;
     }
 
     public void updateZobristKey(PieceColor sideToMove) {
@@ -236,5 +241,9 @@ public class GameState {
 
     public long getZobristKey() {
         return zobristKey;
+    }
+
+    public int getFullMoves() {
+        return fullMoves;
     }
 }

@@ -122,7 +122,7 @@ public final class Zobrist {
     // - type is king
     // - piece color is the specified color
     // - king has not moved
-    private static boolean isKingUnmoved(Piece piece, PieceColor color) {
+    public static boolean isKingUnmoved(Piece piece, PieceColor color) {
         if (piece == null) return false;
         if (piece.getType() != PieceType.KING) return false;
         if (piece.getColor() != color) return false;
@@ -130,7 +130,7 @@ public final class Zobrist {
         return true;
     }
 
-    private static boolean isRookUnmoved(Piece piece, PieceColor color) {
+    public static boolean isRookUnmoved(Piece piece, PieceColor color) {
         if (piece == null) return false;
         if (piece.getType() != PieceType.ROOK) return false;
         if (piece.getColor() != color) return false;

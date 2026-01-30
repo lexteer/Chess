@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import lexteer.chess.domain.board.FEN;
 import lexteer.chess.domain.game.*;
 import lexteer.chess.domain.move.RepetitionTracker;
 import lexteer.chess.domain.move.SelectionMoving;
@@ -18,7 +19,6 @@ import lexteer.chess.ui.board.BoardHighlighting;
 import lexteer.chess.ui.board.BoardUi;
 import lexteer.chess.ui.board.PromotionGUI;
 import lexteer.chess.ui.input.Mouse;
-import lexteer.chess.util.LoadTestPosition;
 
 public class GameScreen implements Screen {
 
@@ -36,7 +36,7 @@ public class GameScreen implements Screen {
     private GameState state;
     private RepetitionTracker repetitionTracker;
 
-    private PieceColor currentPlaying;
+    private static PieceColor currentPlaying;
 
     private static boolean[] enemyAttackedSquares = new boolean[64];
 
@@ -67,7 +67,7 @@ public class GameScreen implements Screen {
         selectionMoving = new SelectionMoving(mouse, board, boardUi, this, state);
         boardHighlighting = new BoardHighlighting(this, boardUi, camera, mouse);
 
-        new LoadTestPosition(board);
+        FEN.load("q5r1/p6p/1k2p3/1Nb1Qb2/P2p3B/8/1PP2PPP/R4RK1 b - - 2 20", state);
 
         state.updateZobristKey(PieceColor.WHITE); // initial hash
         repetitionTracker = new RepetitionTracker(state.getZobristKey());
@@ -164,6 +164,10 @@ public class GameScreen implements Screen {
 
     public static boolean[] getEnemyAttackedSquares() {
         return enemyAttackedSquares;
+    }
+
+    public void setCurrentPlaying(PieceColor color) {
+        currentPlaying = color;
     }
 
     public void switchPlayer() {
