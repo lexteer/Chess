@@ -4,17 +4,19 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import lexteer.chess.domain.board.FEN;
+import lexteer.chess.domain.engine.EngineBinary;
+import lexteer.chess.domain.engine.EngineController;
 import lexteer.chess.domain.game.*;
 import lexteer.chess.domain.move.RepetitionTracker;
 import lexteer.chess.domain.move.SelectionMoving;
 import lexteer.chess.domain.piece.PieceColor;
 import lexteer.chess.domain.piece.Piece;
 import lexteer.chess.domain.board.Board;
+import lexteer.chess.ui.board.BoardCoords;
 import lexteer.chess.ui.board.BoardHighlighting;
 import lexteer.chess.ui.board.BoardUi;
 import lexteer.chess.ui.board.PromotionGUI;
@@ -22,10 +24,10 @@ import lexteer.chess.ui.input.Mouse;
 
 public class GameScreen implements Screen {
 
-    private boolean engineEnabled = false;
+    private boolean engineEnabled = true;
     private final PieceColor playerColor = PieceColor.WHITE;
 
-    private Batch batch;
+    private SpriteBatch batch;
     private OrthographicCamera camera;
     private Viewport viewPort;
     private BoardUi boardUi;
@@ -35,6 +37,7 @@ public class GameScreen implements Screen {
     private SelectionMoving selectionMoving;
     private GameState state;
     private RepetitionTracker repetitionTracker;
+    private BoardCoords boardCoords;
 
     private static PieceColor currentPlaying;
 
@@ -44,6 +47,10 @@ public class GameScreen implements Screen {
     private boolean gameOver = false;
     private GameOver gameOverType;
     private Winner winner;
+
+    // engine
+    private EngineController engineController;
+    private boolean engineThinking;
 
     public GameScreen() {
         currentPlaying = PieceColor.WHITE; // white starts
@@ -66,11 +73,19 @@ public class GameScreen implements Screen {
         state = new GameState(this, board);
         selectionMoving = new SelectionMoving(mouse, board, boardUi, this, state);
         boardHighlighting = new BoardHighlighting(this, boardUi, camera, mouse);
+        boardCoords = new BoardCoords();
 
-        FEN.load("q5r1/p6p/1k2p3/1Nb1Qb2/P2p3B/8/1PP2PPP/R4RK1 b - - 2 20", state);
+        FEN.load("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", state);
 
         state.updateZobristKey(PieceColor.WHITE); // initial hash
         repetitionTracker = new RepetitionTracker(state.getZobristKey());
+
+        try {
+            String enginePath = EngineBinary.prepareEnginePath();
+            engineController = new EngineController(enginePath);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to start stockfish", e);
+        }
     }
 
     private void update(float delta) {
@@ -91,6 +106,16 @@ public class GameScreen implements Screen {
         } else {
             if(currentPlaying != playerColor) {
                 // TODO: play engine move and switch player
+                if (engineController != null && !engineThinking) {
+                    engineThinking = true;
+
+                    int thinkMs = 400;
+
+                    engineController.requestAndApplyMove(state, currentPlaying, thinkMs, () -> {
+                        engineThinking = false;
+                        switchPlayer();
+                    });
+                }
             } else {
                 selectionMoving.update(playerColor);
             }
@@ -118,6 +143,7 @@ public class GameScreen implements Screen {
         batch.begin();
             board.drawPieces(batch);
             PromotionGUI.draw(batch);
+            boardCoords.draw(batch, boardUi);
         batch.end();
     }
 
@@ -148,6 +174,10 @@ public class GameScreen implements Screen {
     public void dispose() {
         boardUi.dispose();
         boardHighlighting.dispose();
+        batch.dispose();
+        if (engineController != null) {
+            engineController.close();
+        }
     }
 
     public Piece getSelectedPiece() {

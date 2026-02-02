@@ -248,12 +248,10 @@ public class FEN {
         // HALF MOVE COUNTER
         String halfCounter = parts[4];
         state.halfMoveClock = Integer.parseInt(halfCounter);
-        System.out.println("half move clock: " + state.halfMoveClock);
 
         // FULL MOVE COUNTER
         String fullCounter = parts[5];
         state.fullMoves = Integer.parseInt(fullCounter);
-        System.out.println("full moves: " + state.fullMoves);
     }
 
     private static PieceType getTypeFromLetter(char letter) {
