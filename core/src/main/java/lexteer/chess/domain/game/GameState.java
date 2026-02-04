@@ -12,6 +12,7 @@ import lexteer.chess.domain.piece.Piece;
 public class GameState {
     public final GameScreen gameScreen;
     public final Board board;
+    public SoundEffects se;
 
     // special moves flags
     public int enPassantSquare = -1;
@@ -29,6 +30,8 @@ public class GameState {
     public GameState(GameScreen gameScreen, Board board) {
         this.gameScreen = gameScreen;
         this.board = board;
+
+        se = new SoundEffects();
     }
 
     public void applyMove(int move) {
@@ -65,6 +68,8 @@ public class GameState {
         if (pieceToMove.getColor() == PieceColor.BLACK) {
             fullMoves++;
         }
+
+        playMoveSound(flags, pieceToMove.getColor());
     }
 
     // removes the pawn behind the target square
@@ -245,5 +250,20 @@ public class GameState {
 
     public int getFullMoves() {
         return fullMoves;
+    }
+
+    private void playMoveSound(int flags, PieceColor movedColor) {
+        PieceColor enemy = (movedColor == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
+        boolean isKingInCheck = Rules.isKingInCheck(this, board.getKing(enemy));
+
+        if(isKingInCheck) {
+            se.playCheck();
+        } else {
+            se.playMove();
+        }
+    }
+
+    public void dispose() {
+        se.dispose();
     }
 }

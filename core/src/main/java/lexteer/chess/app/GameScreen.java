@@ -43,7 +43,6 @@ public class GameScreen implements Screen {
 
     private static boolean[] enemyAttackedSquares = new boolean[64];
 
-
     private boolean gameOver = false;
     private GameOver gameOverType;
     private Winner winner;
@@ -89,38 +88,34 @@ public class GameScreen implements Screen {
     }
 
     private void update(float delta) {
-        if(gameOver) {
-            System.out.println(winner);
-            return;
-        }
+        if(!gameOver) {
+            if (PromotionGUI.isOpen()) {
+                PromotionGUI.update(mouse);
+                mouse.justPressed = false;
+                return;
+            }
 
-        if(PromotionGUI.isOpen()) {
-            PromotionGUI.update(mouse);
-            mouse.justPressed = false;
-            return;
-        }
-
-        if(!engineEnabled) {
-            // 2 player mode; alternate selecting
-            selectionMoving.update(currentPlaying);
-        } else {
-            if(currentPlaying != playerColor) {
-                // TODO: play engine move and switch player
-                if (engineController != null && !engineThinking) {
-                    engineThinking = true;
-
-                    int thinkMs = 400;
-
-                    engineController.requestAndApplyMove(state, currentPlaying, thinkMs, () -> {
-                        engineThinking = false;
-                        switchPlayer();
-                    });
-                }
+            if (!engineEnabled) {
+                // 2 player mode; alternate selecting
+                selectionMoving.update(currentPlaying);
             } else {
-                selectionMoving.update(playerColor);
+                if (currentPlaying != playerColor) {
+                    // TODO: play engine move and switch player
+                    if (engineController != null && !engineThinking) {
+                        engineThinking = true;
+
+                        int thinkMs = 400;
+
+                        engineController.requestAndApplyMove(state, currentPlaying, thinkMs, () -> {
+                            engineThinking = false;
+                            switchPlayer();
+                        });
+                    }
+                } else {
+                    selectionMoving.update(playerColor);
+                }
             }
         }
-
 
         // reset at the end of all logic
         mouse.justPressed = false;
@@ -178,6 +173,7 @@ public class GameScreen implements Screen {
         if (engineController != null) {
             engineController.close();
         }
+        state.dispose();
     }
 
     public Piece getSelectedPiece() {
@@ -214,6 +210,7 @@ public class GameScreen implements Screen {
         gameOver = true;
         gameOverType = type;
         this.winner = winner;
+        state.se.playGameOver();
     }
 
     private void checkGameOver(PieceColor sideToMove) {
@@ -235,6 +232,5 @@ public class GameScreen implements Screen {
         else if (InsufficientMaterial.check(board)) {
             setGameOver(GameOver.INSUFFICIENT, draw);
         }
-
     }
 }
