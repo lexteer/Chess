@@ -213,6 +213,10 @@ public class GameScreen implements Screen {
         state.se.playGameOver();
     }
 
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
     private void checkGameOver(PieceColor sideToMove) {
         Winner win = (sideToMove == PieceColor.BLACK) ? Winner.WHITE : Winner.BLACK;
         Winner draw = Winner.DRAW;

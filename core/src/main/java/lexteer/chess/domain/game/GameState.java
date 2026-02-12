@@ -27,6 +27,9 @@ public class GameState {
     private long zobristKey;
     public int fullMoves = 1;
 
+    private String whiteMoveNotation;
+    private String[] moveLogs;
+
     public GameState(GameScreen gameScreen, Board board) {
         this.gameScreen = gameScreen;
         this.board = board;
@@ -261,6 +264,74 @@ public class GameState {
         } else {
             se.playMove();
         }
+    }
+
+    private String getPieceNotationLetter(Piece piece) {
+        return switch (piece.getType()) {
+            case KING -> "K";
+            case QUEEN -> "Q";
+            case ROOK -> "R";
+            case BISHOP -> "B";
+            case KNIGHT -> "N";
+            case PAWN -> "";
+        };
+    }
+
+    public void addMoveToLogs(int from, int to, int flags, Piece original, Piece promoted) {
+        boolean capture = ((flags & Move.CAPTURE) != 0);
+        boolean promotion = ((flags & Move.PROMO) != 0);
+        boolean isWhite = (original.getColor() == PieceColor.WHITE);
+        boolean isGameOver = gameScreen.isGameOver();
+        boolean isCheck = Rules.isKingInCheck(this, board.getKing((original.getColor() == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE));
+        boolean castling = ((flags & Move.CASTLE) != 0);
+
+        StringBuilder notation = new StringBuilder();
+
+        String fileFrom = Board.getFile(from).name().toLowerCase();
+        int rankFrom = Board.getRank(from);
+        String fileTo = Board.getFile(to).name().toLowerCase();
+        int rankTo = Board.getRank(to);
+
+        PieceType originalType = original.getType();
+        PieceType promotedType = promoted.getType();
+
+        if (castling) {
+            if (to > from) {
+                notation.append("0-0");
+            } else {
+                notation.append("0-0-0");
+            }
+        } else {
+            // piece letter representation (nothing for pawn)
+            String pieceLetter = getPieceNotationLetter(original);
+            notation.append(pieceLetter);
+
+            if (moreThanOnePieceCanMoveToSameSquare()) {
+                notation.append(fileFrom);
+            }
+
+            // x for capture (file before "x" if pawn)
+            if (capture) {
+                if (originalType == PieceType.PAWN) {
+                    notation.append(fileTo);
+                }
+                notation.append("x");
+            }
+
+            // destination square
+            notation.append(fileTo).append(rankTo);
+
+            // promotion move
+            if (promotion && original != promoted) {
+                String promotedLetter = getPieceNotationLetter(promoted);
+                notation.append("=").append(promotedLetter);
+            }
+        }
+
+    }
+
+    private boolean moreThanOnePieceCanMoveToSameSquare() {
+        return false;
     }
 
     public void dispose() {
