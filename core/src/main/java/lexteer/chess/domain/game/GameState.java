@@ -2,6 +2,7 @@ package lexteer.chess.domain.game;
 
 import lexteer.chess.domain.board.Board;
 import lexteer.chess.app.GameScreen;
+import lexteer.chess.domain.board.File;
 import lexteer.chess.domain.board.Zobrist;
 import lexteer.chess.domain.move.Move;
 import lexteer.chess.domain.move.MoveSnapshot;
@@ -306,8 +307,17 @@ public class GameState {
             String pieceLetter = getPieceNotationLetter(original);
             notation.append(pieceLetter);
 
-            if (moreThanOnePieceCanMoveToSameSquare()) {
-                notation.append(fileFrom);
+            // check if multiple pieces of same type can move to the target square
+            Piece otherPiece = secondPieceToMoveToSameSquare(original);
+            if (otherPiece != null) {
+                File otherPieceFile = Board.getFile(otherPiece.square);
+                File originalPieceFile = Board.getFile(from);
+
+                if(otherPieceFile != originalPieceFile) {
+                    notation.append(fileFrom);
+                } else {
+                    notation.append(rankFrom);
+                }
             }
 
             // x for capture (file before "x" if pawn)
@@ -330,8 +340,22 @@ public class GameState {
 
     }
 
-    private boolean moreThanOnePieceCanMoveToSameSquare() {
-        return false;
+    // null if no other piece can move to the same square
+    private Piece secondPieceToMoveToSameSquare(Piece original) {
+        PieceType type = original.getType();
+        PieceColor color = original.getColor();
+        for(int i = 0; i < 64; i++) {
+            Piece piece = board.get(i);
+
+            if(i == original.square) continue;
+            if(piece.getColor() != color) continue;
+            if(piece.getType() != type) continue;
+
+            //TODO -> check if it can move to the same square as the target of the original piece
+
+        }
+
+        return null;
     }
 
     public void dispose() {
